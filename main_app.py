@@ -31,73 +31,11 @@ def get_db_connection(db_user, db_pass, db_host, db_name):
 
 # --- READ (QUERY) OPERATIONS ---
 
-def find_personnel_by_rank(connection):
-    """
-    READ 1: Finds all personnel matching a user-specified rank.
-    """
-    print("\n--- 1. Find Personnel by Rank ---")
-    try:
-        valid_ranks = ('Boss', 'Grunt', 'Scientist')
-        rank = input("  > Enter Rank (Boss, Grunt, Scientist): ").strip().capitalize()
-
-        if rank not in valid_ranks:
-            print(f"\n[ERROR] Invalid rank '{rank}'. Please choose from {valid_ranks}.")
-            return
-
-        with connection.cursor() as cursor:
-            sql = "SELECT Personnel_ID, FName, LName, StartDate FROM PERSONNEL WHERE Rank = %s ORDER BY LName"
-            cursor.execute(sql, (rank,))
-            results = cursor.fetchall()
-
-            if not results:
-                print(f"\n[INFO] No personnel found with rank '{rank}'.")
-            else:
-                print(f"\nFound {len(results)} personnel with rank '{rank}':")
-                print("  " + "-"*52)
-                print(f"  {'ID':<5} | {'Name':<25} | {'Start Date':<15}")
-                print("  " + "-"*52)
-                for row in results:
-                    full_name = f"{row['FName']} {row['LName']}"
-                    print(f"  {row['Personnel_ID']:<5} | {full_name:<25} | {str(row['StartDate']):<15}")
-                print("  " + "-"*52)
-
-    except pymysql.Error as e:
-        print(f"\n[ERROR] Error during query: {e}", file=sys.stderr)
-
-def find_grunt_pokemon(connection):
-    """
-    READ 2: Lists all Pokémon owned by a specific Grunt (via JOIN).
-    """
-    print("\n--- 2. Find a Grunt's Pokémon ---")
-    try:
-        name = input("  > Enter Grunt's First Name: ").strip().capitalize()
-
-        with connection.cursor() as cursor:
-            sql = """
-                SELECT p.Name, p.HP, p.Attack, p.Defense
-                FROM POKEMON p
-                JOIN OWNERSHIP o ON p.Pokemon_ID = o.Pokemon_ID
-                JOIN PERSONNEL per ON o.Personnel_ID = per.Personnel_ID
-                WHERE per.FName = %s AND per.Rank = 'Grunt'
-            """
-            cursor.execute(sql, (name,))
-            results = cursor.fetchall()
-
-            if not results:
-                print(f"\n[INFO] No Pokémon found for a Grunt named '{name}'.")
-            else:
-                print(f"\nPokémon owned by Grunt {name}:")
-                for row in results:
-                    print(f"  - {row['Name']:<18} (HP: {row['HP']:<3}, Atk: {row['Attack']:<3}, Def: {row['Defense']:<3})")
-
-    except pymysql.Error as e:
-        print(f"\n[ERROR] Error during query: {e}", file=sys.stderr)
-
 def show_active_missions(connection):
     """
-    READ 3: Shows all 'Active' missions and their assigned personnel (multi-JOIN).
+    READ 1: Shows all 'Active' missions and their assigned personnel (multi-JOIN).
     """
-    print("\n--- 3. Show Active Missions and Assignments ---")
+    print("\n--- 1. Show Active Missions and Assignments ---")
     try:
         with connection.cursor() as cursor:
             sql = """
@@ -125,45 +63,11 @@ def show_active_missions(connection):
     except pymysql.Error as e:
         print(f"\n[ERROR] Error during query: {e}", file=sys.stderr)
 
-def find_project_scientists(connection):
-    """
-    READ 4: Finds all scientists working on a specific research project (using LIKE).
-    """
-    print("\n--- 4. Find Scientists on a Project ---")
-    try:
-        search_title = input("  > Enter a keyword from the project title (e.g., 'Apex'): ").strip()
-        
-        with connection.cursor() as cursor:
-            sql = """
-                SELECT p.Title, p.Status, s.FName, s.LName, sc.Specialization
-                FROM RESEARCH_PROJECT p
-                JOIN SCIENTIST sc ON p.Project_ID = sc.Project_ID
-                JOIN PERSONNEL s ON sc.Scientist_Personnel_ID = s.Personnel_ID
-                WHERE p.Title LIKE %s
-                ORDER BY p.Title, s.LName
-            """
-            cursor.execute(sql, (f"%{search_title}%",))
-            results = cursor.fetchall()
-
-            if not results:
-                print(f"\n[INFO] No projects found matching '{search_title}'.")
-            else:
-                print(f"\nScientists on projects matching '{search_title}':")
-                current_project = None
-                for row in results:
-                    if row['Title'] != current_project:
-                        print(f"\n  [Project] {row['Title']} (Status: {row['Status']})")
-                        current_project = row['Title']
-                    print(f"    - Dr. {row['FName']} {row['LName']} ({row['Specialization']})")
-
-    except pymysql.Error as e:
-        print(f"\n[ERROR] Error during query: {e}", file=sys.stderr)
-
 def calculate_pending_mission_risk(connection):
     """
-    READ 5: Calculates total notoriety of trainers targeted in 'Pending' missions (Aggregate).
+    READ 2: Calculates total notoriety of trainers targeted in 'Pending' missions (Aggregate).
     """
-    print("\n--- 5. Calculate Pending Mission Risk ---")
+    print("\n--- 2. Calculate Pending Mission Risk ---")
     try:
         with connection.cursor() as cursor:
             sql = """
@@ -185,10 +89,10 @@ def calculate_pending_mission_risk(connection):
 
 def find_top_performing_personnel(connection):
     """
-    READ 6: Find personnel who have participated in the most 'Completed' missions.
+    READ 3: Find personnel who have participated in the most 'Completed' missions.
     Uses JOIN, GROUP BY, ORDER BY, LIMIT.
     """
-    print("\n--- 6. Top Performing Personnel ---")
+    print("\n--- 3. Top Performing Personnel ---")
     try:
         with connection.cursor() as cursor:
             sql = """
@@ -219,10 +123,10 @@ def find_top_performing_personnel(connection):
 
 def list_unassigned_assets(connection):
     """
-    READ 7: List assets that are not currently assigned to any active mission.
+    READ 4: List assets that are not currently assigned to any active mission.
     Uses Nested Query (NOT IN).
     """
-    print("\n--- 7. List Unassigned Assets ---")
+    print("\n--- 4. List Unassigned Assets ---")
     try:
         with connection.cursor() as cursor:
             sql = """
@@ -254,10 +158,10 @@ def list_unassigned_assets(connection):
 
 def analyze_pokemon_stats_by_type(connection):
     """
-    READ 8: Average HP, Attack, Defense for each Pokemon type.
+    READ 5: Average HP, Attack, Defense for each Pokemon type.
     Uses JOIN, GROUP BY, AVG.
     """
-    print("\n--- 8. Analyze Pokemon Stats by Type ---")
+    print("\n--- 5. Analyze Pokemon Stats by Type ---")
     try:
         with connection.cursor() as cursor:
             sql = """
@@ -284,10 +188,10 @@ def analyze_pokemon_stats_by_type(connection):
 
 def find_trainers_with_high_notoriety_no_mission(connection):
     """
-    READ 9: Find trainers with NotorietyScore > X who are not targeted by any mission.
+    READ 6: Find trainers with NotorietyScore > X who are not targeted by any mission.
     Uses LEFT JOIN with NULL check.
     """
-    print("\n--- 9. High Notoriety Trainers (Untargeted) ---")
+    print("\n--- 6. High Notoriety Trainers (Untargeted) ---")
     try:
         score_threshold = input("  > Enter Minimum Notoriety Score (e.g., 50): ").strip()
         if not score_threshold.isdigit():
@@ -319,10 +223,10 @@ def find_trainers_with_high_notoriety_no_mission(connection):
 
 def mission_success_rate_by_base(connection):
     """
-    READ 10: Calculate the percentage of completed missions for personnel from each base.
+    READ 7: Calculate the percentage of completed missions for personnel from each base.
     Uses Complex JOIN, GROUP BY, Conditional Aggregation.
     """
-    print("\n--- 10. Mission Success Rate by Base ---")
+    print("\n--- 7. Mission Success Rate by Base ---")
     try:
         with connection.cursor() as cursor:
             sql = """
@@ -357,39 +261,79 @@ def mission_success_rate_by_base(connection):
 
 # --- WRITE (C/U/D) OPERATIONS ---
 
-def add_new_asset(connection):
+def recruit_new_personnel(connection):
     """
-    WRITE 1 (INSERT): Adds a new asset to the ASSET table.
+    WRITE 8 (INSERT): Recruits new personnel and assigns them a rank.
     """
-    print("\n--- 11. (INSERT) Add New Asset ---")
+    print("\n--- 8. (INSERT) Recruit New Personnel ---")
     try:
-        asset_code = input("  > Enter Asset Code (e.g., 'VEH-003'): ").strip().upper()
-        asset_type = input("  > Enter Asset Type (e.g., 'Jeep'): ").strip()
-        value = float(input("  > Enter Value Estimate (e.g., 45000.00): "))
-
-        if not asset_code or not asset_type or value < 0:
-            print("\n[ERROR] Asset Code, Type, and a non-negative Value are required.")
+        fname = input("  > First Name: ").strip()
+        lname = input("  > Last Name: ").strip()
+        rank = input("  > Rank (Boss, Grunt, Scientist): ").strip().capitalize()
+        
+        if rank not in ('Boss', 'Grunt', 'Scientist'):
+            print("[ERROR] Invalid rank.")
             return
 
+        # For simplicity, we'll assign them to the first available Base ID or ask for it.
+        # Let's ask for Base ID.
+        base_id = input("  > Base ID (Enter for default/NULL): ").strip()
+        base_id = int(base_id) if base_id else None
+
         with connection.cursor() as cursor:
-            sql = "INSERT INTO ASSET (Asset_Code, Asset_Type, Value_Estimate) VALUES (%s, %s, %s)"
-            cursor.execute(sql, (asset_code, asset_type, value))
+            # 1. Insert into PERSONNEL
+            sql_personnel = "INSERT INTO PERSONNEL (FName, LName, `Rank`, StartDate, Base_ID) VALUES (%s, %s, %s, CURDATE(), %s)"
+            cursor.execute(sql_personnel, (fname, lname, rank, base_id))
+            personnel_id = cursor.lastrowid
+
+            # 2. Insert into Subclass Table
+            if rank == 'Grunt':
+                # Assign to a squad? Let's leave it NULL for now or ask.
+                cursor.execute("INSERT INTO GRUNT (Grunt_Personnel_ID) VALUES (%s)", (personnel_id,))
+            elif rank == 'Scientist':
+                spec = input("  > Specialization: ").strip()
+                cursor.execute("INSERT INTO SCIENTIST (Scientist_Personnel_ID, Specialization) VALUES (%s, %s)", (personnel_id, spec))
+            elif rank == 'Boss':
+                region = input("  > Region Managed: ").strip()
+                cursor.execute("INSERT INTO BOSS (Boss_Personnel_ID, Region_Managed) VALUES (%s, %s)", (personnel_id, region))
         
         connection.commit()
-        print(f"\n[SUCCESS] Asset '{asset_code}' added to the database.")
+        print(f"\n[SUCCESS] Recruited {rank} {fname} {lname} (ID: {personnel_id}).")
 
     except pymysql.Error as e:
-        print(f"\n[ERROR] Error during insert: {e}", file=sys.stderr)
+        print(f"\n[ERROR] Error during recruitment: {e}", file=sys.stderr)
         connection.rollback()
     except ValueError:
-        print("\n[ERROR] Invalid value. Please enter a number for the estimate.")
+        print("\n[ERROR] Invalid input.")
         connection.rollback()
+
+def assign_pokemon_to_personnel(connection):
+    """
+    WRITE 9 (INSERT): Assigns a Pokemon to a personnel member.
+    """
+    print("\n--- 9. (INSERT) Assign Pokemon to Personnel ---")
+    try:
+        personnel_id = int(input("  > Personnel ID: "))
+        pokemon_id = int(input("  > Pokemon ID: "))
+
+        with connection.cursor() as cursor:
+            sql = "INSERT INTO OWNERSHIP (Personnel_ID, Pokemon_ID) VALUES (%s, %s)"
+            cursor.execute(sql, (personnel_id, pokemon_id))
+        
+        connection.commit()
+        print(f"\n[SUCCESS] Pokemon {pokemon_id} assigned to Personnel {personnel_id}.")
+
+    except pymysql.Error as e:
+        print(f"\n[ERROR] Error during assignment: {e}", file=sys.stderr)
+        connection.rollback()
+    except ValueError:
+        print("\n[ERROR] Invalid ID.")
 
 def update_mission_status(connection):
     """
-    WRITE 2 (UPDATE): Updates the status of an existing mission.
+    WRITE 10 (UPDATE): Updates the status of an existing mission.
     """
-    print("\n--- 12. (UPDATE) Update Mission Status ---")
+    print("\n--- 10. (UPDATE) Update Mission Status ---")
     try:
         mission_id = int(input("  > Enter Mission ID to update: "))
         
@@ -423,109 +367,11 @@ def update_mission_status(connection):
         print("\n[ERROR] Invalid Mission ID. Please enter a number.")
         connection.rollback()
 
-def remove_asset_from_mission(connection):
-    """
-    WRITE 3 (DELETE): Removes an asset's assignment from a mission.
-    """
-    print("\n--- 13. (DELETE) Remove Asset from Mission ---")
-    try:
-        mission_id = int(input("  > Enter Mission ID: "))
-        asset_code = input("  > Enter Asset Code to remove (e.g., 'CH-HELI-01'): ").strip().upper()
-
-        if not asset_code:
-            print("\n[ERROR] Asset Code cannot be empty.")
-            return
-
-        with connection.cursor() as cursor:
-            sql = "DELETE FROM MISSION_ASSETS WHERE Mission_ID = %s AND Asset_Code = %s"
-            rows_affected = cursor.execute(sql, (mission_id, asset_code))
-
-        if rows_affected == 0:
-            print(f"\n[INFO] No asset '{asset_code}' found assigned to mission {mission_id}. No changes made.")
-        else:
-            connection.commit()
-            print(f"\n[SUCCESS] Asset '{asset_code}' removed from mission {mission_id}.")
-
-    except pymysql.Error as e:
-        print(f"\n[ERROR] Error during delete: {e}", file=sys.stderr)
-        connection.rollback()
-    except ValueError:
-        print("\n[ERROR] Invalid Mission ID. Please enter a number.")
-        connection.rollback()
-
-def recruit_new_personnel(connection):
-    """
-    WRITE 4 (INSERT): Recruits new personnel and assigns them a rank.
-    """
-    print("\n--- 14. (INSERT) Recruit New Personnel ---")
-    try:
-        fname = input("  > First Name: ").strip()
-        lname = input("  > Last Name: ").strip()
-        rank = input("  > Rank (Boss, Grunt, Scientist): ").strip().capitalize()
-        
-        if rank not in ('Boss', 'Grunt', 'Scientist'):
-            print("[ERROR] Invalid rank.")
-            return
-
-        # For simplicity, we'll assign them to the first available Base ID or ask for it.
-        # Let's ask for Base ID.
-        base_id = input("  > Base ID (Enter for default/NULL): ").strip()
-        base_id = int(base_id) if base_id else None
-
-        with connection.cursor() as cursor:
-            # 1. Insert into PERSONNEL
-            sql_personnel = "INSERT INTO PERSONNEL (FName, LName, Rank, StartDate, Base_ID) VALUES (%s, %s, %s, CURDATE(), %s)"
-            cursor.execute(sql_personnel, (fname, lname, rank, base_id))
-            personnel_id = cursor.lastrowid
-
-            # 2. Insert into Subclass Table
-            if rank == 'Grunt':
-                # Assign to a squad? Let's leave it NULL for now or ask.
-                cursor.execute("INSERT INTO GRUNT (Grunt_Personnel_ID) VALUES (%s)", (personnel_id,))
-            elif rank == 'Scientist':
-                spec = input("  > Specialization: ").strip()
-                cursor.execute("INSERT INTO SCIENTIST (Scientist_Personnel_ID, Specialization) VALUES (%s, %s)", (personnel_id, spec))
-            elif rank == 'Boss':
-                region = input("  > Region Managed: ").strip()
-                cursor.execute("INSERT INTO BOSS (Boss_Personnel_ID, Region_Managed) VALUES (%s, %s)", (personnel_id, region))
-        
-        connection.commit()
-        print(f"\n[SUCCESS] Recruited {rank} {fname} {lname} (ID: {personnel_id}).")
-
-    except pymysql.Error as e:
-        print(f"\n[ERROR] Error during recruitment: {e}", file=sys.stderr)
-        connection.rollback()
-    except ValueError:
-        print("\n[ERROR] Invalid input.")
-        connection.rollback()
-
-def assign_pokemon_to_personnel(connection):
-    """
-    WRITE 5 (INSERT): Assigns a Pokemon to a personnel member.
-    """
-    print("\n--- 15. (INSERT) Assign Pokemon to Personnel ---")
-    try:
-        personnel_id = int(input("  > Personnel ID: "))
-        pokemon_id = int(input("  > Pokemon ID: "))
-
-        with connection.cursor() as cursor:
-            sql = "INSERT INTO OWNERSHIP (Personnel_ID, Pokemon_ID) VALUES (%s, %s)"
-            cursor.execute(sql, (personnel_id, pokemon_id))
-        
-        connection.commit()
-        print(f"\n[SUCCESS] Pokemon {pokemon_id} assigned to Personnel {personnel_id}.")
-
-    except pymysql.Error as e:
-        print(f"\n[ERROR] Error during assignment: {e}", file=sys.stderr)
-        connection.rollback()
-    except ValueError:
-        print("\n[ERROR] Invalid ID.")
-
 def update_pokemon_stats(connection):
     """
-    WRITE 6 (UPDATE): Updates a Pokemon's stats.
+    WRITE 11 (UPDATE): Updates a Pokemon's stats.
     """
-    print("\n--- 16. (UPDATE) Update Pokemon Stats ---")
+    print("\n--- 11. (UPDATE) Update Pokemon Stats ---")
     try:
         pokemon_id = int(input("  > Pokemon ID: "))
         new_hp = int(input("  > New HP: "))
@@ -554,9 +400,9 @@ def update_pokemon_stats(connection):
 
 def fire_personnel(connection):
     """
-    WRITE 7 (DELETE): Fires (deletes) a personnel member.
+    WRITE 12 (DELETE): Fires (deletes) a personnel member.
     """
-    print("\n--- 17. (DELETE) Fire Personnel ---")
+    print("\n--- 12. (DELETE) Fire Personnel ---")
     try:
         personnel_id = int(input("  > Personnel ID to Fire: "))
         confirm = input(f"  > Are you sure you want to fire ID {personnel_id}? (y/n): ").lower()
