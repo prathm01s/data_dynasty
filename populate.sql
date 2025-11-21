@@ -1,13 +1,12 @@
--- Phase 4: Data Population (Large Dataset)
--- populate.sql: This script populates the chimera_db with a substantial,
--- coherent dataset to test all functional requirements.
--- It follows a specific order to respect foreign key (FK) constraints. [cite: 42]
+-- Phase 4: Data Population (Enhanced Dataset)
+-- populate.sql: Populates chimera_db with dense, interconnected data.
+-- Includes 1:N, N:1, and M:N relationships to fully test system logic.
 
--- Select the database to ensure all subsequent commands run on it.
 USE chimera_db;
 
--- ====== GROUP 1: Independent Entities ======
--- These tables have no foreign keys and can be populated first.
+-- ============================================================
+-- GROUP 1: Independent Entities
+-- ============================================================
 
 INSERT INTO TRAINER (Name, Affiliation, NotorietyScore) VALUES
 ('Red', 'Kanto Champion', 950),
@@ -118,10 +117,9 @@ INSERT INTO SERUM (Serum_Name, Formula_Code, Target_Effect) VALUES
 ('N-12 (Normal)', 'FOR-NOR-012', 'Placebo, no effect.');
 
 
--- ====== GROUP 2: Core Entities (Part 1) ======
--- PERSONNEL must be populated before Boss, Grunt, and Scientist.
--- We will create 30 personnel records (3 Boss, 12 Scientist, 15 Grunt).
--- Base_ID is left NULL for now.
+-- ============================================================
+-- GROUP 2: Core Entities (Personnel & Pokemon)
+-- ============================================================
 
 INSERT INTO PERSONNEL (Personnel_ID, FName, LName, `Rank`, StartDate) VALUES
 -- Bosses (3)
@@ -160,7 +158,6 @@ INSERT INTO PERSONNEL (Personnel_ID, FName, LName, `Rank`, StartDate) VALUES
 (29, 'Kara', 'Sorel', 'Grunt', '2025-01-01'),
 (30, 'Leon', 'S.', 'Grunt', '2025-01-01');
 
--- POKEMON (30)
 INSERT INTO POKEMON (Pokemon_ID, Name, HP, Attack, Defense, Project_ID) VALUES
 (1, 'Chimera-001', 120, 110, 90, 1),   -- Project Apex
 (2, 'Mewtwo-C', 106, 154, 90, 3),      -- Project Chimera
@@ -188,22 +185,16 @@ INSERT INTO POKEMON (Pokemon_ID, Name, HP, Attack, Defense, Project_ID) VALUES
 (24, 'Pinsir', 65, 125, 100, NULL),
 (25, 'Tauros', 75, 100, 95, NULL),
 (26, 'Aerodactyl', 80, 105, 65, 7), -- Project Genesis (revived)
-(27, 'Kabutops', 60, 115, 105, 7), -- Pr130 prathm_s@PrincipiaComputica:~/Desktop/dna$ sudo .venv/bin/python3 main_app.py
---- Chimera Database Login ---
-  > Username: root
-  > Password: 
-
-[ERROR] Failed to connect to MySQL Database: (1698, "Access denied for user 'root'@'localhost'")
-
-[FATAL] Application cannot start without a database connection.oject Genesis (revived)
+(27, 'Kabutops', 60, 115, 105, 7), -- Project Genesis (revived)
 (28, 'Omastar', 70, 60, 125, 7), -- Project Genesis (revived)
 (29, 'Vesper-001', 1, 1, 1, 2), -- Project Vesper (failed)
 (30, 'Apex-002', 100, 100, 100, 1); -- Project Apex
 
 
--- ====== GROUP 3: Specialization & Dependent Entities ======
+-- ============================================================
+-- GROUP 3: Hierarchy & Specialization
+-- ============================================================
 
--- BOSS links to PERSONNEL
 INSERT INTO BOSS (Boss_Personnel_ID, Region_Managed) VALUES
 (1, 'Kanto & Johto'),
 (2, 'Hoenn & Sinnoh'),
@@ -211,7 +202,6 @@ INSERT INTO BOSS (Boss_Personnel_ID, Region_Managed) VALUES
 (31, 'Alola'),
 (32, 'Galar');
 
--- BASE links to BOSS
 INSERT INTO BASE (Name, Location, `Status`, Boss_ID) VALUES
 ('Chimera HQ', 'Unknown Island, Kanto', 'Active', 1),
 ('Outpost Delta', 'Johto Route 45', 'Inactive', 2),
@@ -219,45 +209,43 @@ INSERT INTO BASE (Name, Location, `Status`, Boss_ID) VALUES
 ('Aether Lab', 'Sinnoh, Veilstone', 'Under Construction', 31),
 ('Castelia Stronghold', 'Unova, Castelia Sewers', 'Active', 32);
 
--- SQUADS links to BOSS
+-- 1:N Relationship (One Boss manages multiple Squads)
 INSERT INTO SQUADS (Boss_ID) VALUES
 (1), (1), (1), (1), -- 4 Kanto/Johto Squads
 (2), (2), (2), -- 3 Hoenn/Sinnoh Squads
 (3), (3), (3); -- 3 Unova Squads
 
--- GRUNT links to PERSONNEL and SQUADS
 INSERT INTO GRUNT (Grunt_Personnel_ID, Squad_ID) VALUES
-(16, 1), (17, 1), -- Kai, Ria
-(18, 2), -- Jax
-(19, 2), -- Anya
-(20, 3), -- Bram
-(21, 3), -- Cora
-(22, 4), -- Dax
-(23, 5), -- Ezra
-(24, 5), -- Faye
-(25, 6), -- Garrus
-(26, 6), -- Hana
-(27, 7), -- Ivan
-(28, 8), -- Jett
-(29, 9), -- Kara
-(30, 10); -- Leon
+(16, 1), (17, 1), -- Kai, Ria (Squad 1)
+(18, 2), -- Jax (Squad 2)
+(19, 2), -- Anya (Squad 2)
+(20, 3), -- Bram (Squad 3)
+(21, 3), -- Cora (Squad 3)
+(22, 4), -- Dax (Squad 4)
+(23, 5), -- Ezra (Squad 5)
+(24, 5), -- Faye (Squad 5)
+(25, 6), -- Garrus (Squad 6)
+(26, 6), -- Hana (Squad 6)
+(27, 7), -- Ivan (Squad 7)
+(28, 8), -- Jett (Squad 8)
+(29, 9), -- Kara (Squad 9)
+(30, 10); -- Leon (Squad 10)
 
--- SCIENTIST links to PERSONNEL and RESEARCH_PROJECT
+-- 1:N Relationship (One Project has multiple Scientists)
 INSERT INTO SCIENTIST (Scientist_Personnel_ID, Specialization, Project_ID) VALUES
-(4, 'Genetic Engineering', 1),  -- Aris on Project Apex
-(5, 'Biochemistry', 2),         -- Evelyn on Project Vesper
-(6, 'Cloning', 3),              -- Kenji on Project Chimera
-(7, 'Marine Biology', 4),       -- Elara on Project Abyss
-(8, 'Physics', 5),              -- Felix on Project Nova
-(9, 'Data Science', 8),         -- Gideon on Project Overlord
-(10, 'Robotics', 9),            -- Inara on Project Aegis
-(11, 'Paleontology', 7),        -- Jonas on Project Genesis
-(12, 'Biochemistry', 1),        -- Lyra on Project Apex
-(13, 'Genetic Engineering', 1), -- Milo on Project Apex
-(14, 'Cloning', 3),             -- Nadia on Project Chimera
-(15, 'Weaponry', 8);            -- Orion on Project Overlord
+(4, 'Genetic Engineering', 1),  -- Aris on Apex
+(5, 'Biochemistry', 2),         -- Evelyn on Vesper
+(6, 'Cloning', 3),              -- Kenji on Chimera
+(7, 'Marine Biology', 4),       -- Elara on Abyss
+(8, 'Physics', 5),              -- Felix on Nova
+(9, 'Data Science', 8),         -- Gideon on Overlord
+(10, 'Robotics', 9),            -- Inara on Aegis
+(11, 'Paleontology', 7),        -- Jonas on Genesis
+(12, 'Biochemistry', 1),        -- Lyra on Apex
+(13, 'Genetic Engineering', 1), -- Milo on Apex
+(14, 'Cloning', 3),             -- Nadia on Chimera
+(15, 'Weaponry', 8);            -- Orion on Overlord
 
--- POKEMON_TYPE links to POKEMON (multi-valued attribute)
 INSERT INTO POKEMON_TYPE (Pokemon_ID, Type) VALUES
 (1, 'Dark'), (1, 'Psychic'),
 (2, 'Psychic'),
@@ -290,7 +278,6 @@ INSERT INTO POKEMON_TYPE (Pokemon_ID, Type) VALUES
 (29, 'Normal'),
 (30, 'Psychic');
 
--- EXPERIMENTAL_LOG links to RESEARCH_PROJECT
 INSERT INTO EXPERIMENTAL_LOG (Project_ID, Log_ID, Objective, `Status`) VALUES
 (1, 1, 'Initial gene splicing stability test.', 'Successful'),
 (1, 2, 'Introduce external stimulus.', 'In Progress'),
@@ -324,9 +311,10 @@ INSERT INTO EXPERIMENTAL_LOG (Project_ID, Log_ID, Objective, `Status`) VALUES
 (8, 4, 'Steal Master Ball prototype.', 'Successful');
 
 
--- ====== GROUP 4: Missions & Associative Entities ======
+-- ============================================================
+-- GROUP 4: Missions & M:N Relationships
+-- ============================================================
 
--- MISSION (30) links to TRAINER
 INSERT INTO MISSION (Objective, `Status`, StartDate, Target_Trainer_ID) VALUES
 ('Capture Legendary Pokemon in Mt. Moon.', 'Active', '2025-11-10', NULL),
 ('Ambush and battle Trainer Red at Indigo Plateau.', 'Pending', '2025-11-20', 1),
@@ -359,13 +347,17 @@ INSERT INTO MISSION (Objective, `Status`, StartDate, Target_Trainer_ID) VALUES
 ('Ambush Gym Leader Flannery.', 'Active', '2025-11-13', 29),
 ('Recover lost drone DRN-SC-03.', 'Pending', '2025-11-19', NULL);
 
--- M:N table linking MISSION and PERSONNEL (40)
+-- M:N Relation: MISSION_ASSIGNMENT
+-- Demonstration: One Mission with MANY personnel (Mission 5).
+-- Demonstration: One Person with MANY missions (Grunt Kai - ID 16).
 INSERT INTO MISSION_ASSIGNMENT (Mission_ID, Personnel_ID, Role, `Status`) VALUES
 (1, 16, 'Field Operative', 'Engaged'), (1, 17, 'Field Operative', 'Travelling'),
 (2, 18, 'Field Leader', 'Assigned'),
 (3, 4, 'Infiltrator', 'Engaged'),
 (4, 16, 'Saboteur', 'Battle Lost'),
+-- Mission 5: "All Hands on Deck" (Boss, Scientist, Grunts)
 (5, 19, 'Infiltrator', 'Engaged'), (5, 20, 'Lookout', 'Engaged'),
+(5, 2, 'Tactical Overseer', 'Engaged'), (5, 9, 'Cyber Warfare', 'Engaged'), (5, 23, 'Crowd Control', 'Engaged'),
 (6, 21, 'Wrangler', 'Engaged'), (6, 22, 'Wrangler', 'Engaged'),
 (7, 1, 'Observer', 'Assigned'),
 (8, 9, 'Hacker', 'Engaged'),
@@ -382,6 +374,7 @@ INSERT INTO MISSION_ASSIGNMENT (Mission_ID, Personnel_ID, Role, `Status`) VALUES
 (20, 7, 'Field Scientist', 'Engaged'),
 (21, 29, 'Scout', 'Engaged'), (21, 30, 'Scout', 'Engaged'),
 (22, 25, 'Scout', 'Assigned'),
+-- Mission 23: Guard Rotation (Many personnel)
 (23, 16, 'Guard', 'Engaged'), (23, 17, 'Guard', 'Engaged'),
 (24, 23, 'Guard', 'Engaged'), (24, 24, 'Guard', 'Engaged'),
 (25, 27, 'Guard', 'Engaged'), (25, 28, 'Guard', 'Engaged'),
@@ -391,13 +384,16 @@ INSERT INTO MISSION_ASSIGNMENT (Mission_ID, Personnel_ID, Role, `Status`) VALUES
 (29, 18, 'Field Leader', 'Engaged'), (29, 26, 'Field Operative', 'Engaged'),
 (30, 22, 'Recovery', 'Assigned');
 
--- M:N table linking MISSION and ASSET (40)
+-- M:N Relation: MISSION_ASSETS
+-- Demonstration: One Asset used in MANY missions (CH-HELI-01).
+-- Demonstration: One Mission using MANY assets (Mission 25).
 INSERT INTO MISSION_ASSETS (Mission_ID, Asset_Code, Acquisition_Status) VALUES
 (1, 'CH-HELI-01', 'Acquired'),
 (2, 'MB-PROTO-01', 'Pending'),
 (3, 'KEY-002', 'Acquired'),
 (4, 'DRN-SC-01', 'Lost'),
-(5, 'KEY-001', 'Pending'),
+-- Mission 5 Asset Heavy
+(5, 'KEY-001', 'Pending'), (5, 'CH-HELI-01', 'Acquired'),
 (6, 'VEH-TRN-01', 'Returned'),
 (7, 'INTEL-001', 'Pending'),
 (8, 'COMP-SYS-02', 'Acquired'),
@@ -414,22 +410,30 @@ INSERT INTO MISSION_ASSETS (Mission_ID, Asset_Code, Acquisition_Status) VALUES
 (20, 'SUB-001', 'Acquired'),
 (21, 'SAT-UPLINK-01', 'Acquired'),
 (22, 'DRN-SC-01', 'Pending'),
-(23, 'ARMOR-002', 'Acquired'),
+(23, 'ARMOR-002', 'Acquired'), (23, 'CH-HELI-01', 'Acquired'),
 (24, 'ARMOR-003', 'Acquired'),
-(25, 'COMP-SYS-02', 'Acquired'),
+-- Mission 25: Heavy Defense (Multiple assets)
+(25, 'COMP-SYS-02', 'Acquired'), (25, 'WPN-SYS-A', 'Acquired'), (25, 'DRN-CM-01', 'Acquired'), (25, 'DRN-CM-02', 'Acquired'),
 (26, 'VEH-TRN-01', 'Pending'), (26, 'VEH-TRN-02', 'Pending'),
 (27, 'WPN-SYS-A', 'Acquired'),
 (28, 'CHEM-001', 'Acquired'),
-(29, 'GEM-001', 'Pending'),
+(29, 'GEM-001', 'Pending'), (29, 'CH-HELI-01', 'Pending'),
 (30, 'DRN-SC-03', 'Pending');
 
--- M:N table linking PERSONNEL and POKEMON (40)
+-- M:N Relation: OWNERSHIP
+-- Demonstration: One Person owning MANY Pokemon.
+-- Demonstration: One Pokemon owned by MANY Personnel (Shared Custody).
 INSERT INTO OWNERSHIP (Personnel_ID, Pokemon_ID) VALUES
 (1, 5), -- Boss Silas, Persian
+(1, 18), -- Boss Silas, Tyranitar
+(1, 2), -- Boss Silas, Mewtwo-C (Shared Oversight)
 (4, 1), -- Scientist Aris, Chimera-001
-(6, 2), -- Scientist Kenji, Mewtwo-C
+(4, 30), -- Scientist Aris, Apex-002
+(4, 2), -- Scientist Aris, Mewtwo-C (Shared Oversight)
+(6, 2), -- Scientist Kenji, Mewtwo-C (Original Creator)
 (5, 3), -- Scientist Evelyn, Rattata
 (5, 4), -- Scientist Evelyn, Pidgey
+(5, 29), -- Scientist Evelyn, Vesper-001
 (7, 8), -- Scientist Elara, Abyss-001
 (9, 14), -- Scientist Gideon, Magneton
 (11, 26), (11, 27), (11, 28), -- Scientist Jonas, Fossils
@@ -444,19 +448,19 @@ INSERT INTO OWNERSHIP (Personnel_ID, Pokemon_ID) VALUES
 (23, 12), -- Grunt Ezra, Alakazam
 (24, 23), -- Grunt Faye, Scyther
 (25, 24), -- Grunt Garrus, Pinsir
+(25, 16), -- Grunt Garrus, Gyarados (Shared Transport)
 (26, 25), -- Grunt Hana, Tauros
 (27, 21), -- Grunt Ivan, Weezing
+(27, 16), -- Grunt Ivan, Gyarados (Shared Transport)
 (28, 20), -- Grunt Jett, Koffing
+(28, 16), -- Grunt Jett, Gyarados (Shared Transport)
 (29, 16), -- Grunt Kara, Gyarados
 (30, 15), -- Grunt Leon, Arcanine
-(1, 18), -- Boss Silas, Tyranitar
 (2, 17), -- Boss Serena, Houndoom
-(3, 11), -- Boss Marcus, Machamp
-(4, 30), -- Scientist Aris, Apex-002
-(5, 29); -- Scientist Evelyn, Vesper-001
+(3, 11); -- Boss Marcus, Machamp
 
-
--- Ternary+ table for field engagements (30)
+-- Ternary Relation: FIELD_ENGAGEMENT
+-- Demonstration: Grunt Kai fighting Trainer Red across MULTIPLE missions.
 INSERT INTO FIELD_ENGAGEMENT (Grunt_Personnel_ID, Trainer_ID, Mission_ID, Pokemon_ID) VALUES
 (16, 2, 4, 6), -- Grunt Kai vs Trainer Blue on Mission 4 with Zubat
 (18, 4, 10, 11), -- Grunt Jax vs Trainer Lance on Mission 10 with Machamp
@@ -475,21 +479,23 @@ INSERT INTO FIELD_ENGAGEMENT (Grunt_Personnel_ID, Trainer_ID, Mission_ID, Pokemo
 (17, 15, 1, 7), -- Grunt Ria vs Trainer Sabrina on Mission 1 with Ekans
 (16, 16, 1, 6), -- Grunt Kai vs Trainer Koga on Mission 1 with Zubat
 (17, 16, 1, 7), -- Grunt Ria vs Trainer Koga on Mission 1 with Ekans
-(16, 1, 2, 6), -- Grunt Kai vs Trainer Red on Mission 2 with Zubat
-(17, 1, 2, 7), -- Grunt Ria vs Trainer Red on Mission 2 with Ekans
-(18, 1, 2, 11), -- Grunt Jax vs Trainer Red on Mission 2 with Machamp
-(19, 1, 2, 17), -- Grunt Anya vs Trainer Red on Mission 2 with Houndoom
-(20, 1, 2, 13), -- Grunt Bram vs Trainer Red on Mission 2 with Golem
-(21, 1, 2, 22), -- Grunt Cora vs Trainer Red on Mission 2 with Gengar
-(22, 1, 2, 19), -- Grunt Dax vs Trainer Red on Mission 2 with Rhydon
-(23, 1, 2, 12), -- Grunt Ezra vs Trainer Red on Mission 2 with Alakazam
-(24, 1, 2, 23), -- Grunt Faye vs Trainer Red on Mission 2 with Scyther
-(25, 1, 2, 24), -- Grunt Garrus vs Trainer Red on Mission 2 with Pinsir
-(26, 1, 2, 25), -- Grunt Hana vs Trainer Red on Mission 2 with Tauros
-(27, 1, 2, 21), -- Grunt Ivan vs Trainer Red on Mission 2 with Weezing
-(28, 1, 2, 20); -- Grunt Jett vs Trainer Red on Mission 2 with Koffing
+-- The Kai vs Red Saga (Mission 2, 7, 20)
+(16, 1, 2, 6), -- Grunt Kai vs Trainer Red on Mission 2
+(16, 1, 7, 6), -- Grunt Kai vs Trainer Red on Mission 7 (Rivalry)
+(16, 1, 20, 6), -- Grunt Kai vs Trainer Red on Mission 20 (Rivalry)
+(17, 1, 2, 7), -- Grunt Ria vs Trainer Red on Mission 2
+(18, 1, 2, 11), -- Grunt Jax vs Trainer Red on Mission 2
+(19, 1, 2, 17), -- Grunt Anya vs Trainer Red on Mission 2
+(20, 1, 2, 13), -- Grunt Bram vs Trainer Red on Mission 2
+(21, 1, 2, 22), -- Grunt Cora vs Trainer Red on Mission 2
+(22, 1, 2, 19), -- Grunt Dax vs Trainer Red on Mission 2
+(23, 1, 2, 12), -- Grunt Ezra vs Trainer Red on Mission 2
+(24, 1, 2, 23), -- Grunt Faye vs Trainer Red on Mission 2
+(25, 1, 2, 24), -- Grunt Garrus vs Trainer Red on Mission 2
+(26, 1, 2, 25), -- Grunt Hana vs Trainer Red on Mission 2
+(27, 1, 2, 21), -- Grunt Ivan vs Trainer Red on Mission 2
+(28, 1, 2, 20); -- Grunt Jett vs Trainer Red on Mission 2
 
--- 4-way table for experiment events (30)
 INSERT INTO EXPERIMENTATION_EVENT (Scientist_Personnel_ID, Serum_ID, Pokemon_ID, Project_ID) VALUES
 (5, 2, 3, 2), -- Evelyn, X-05 (Aggression), Rattata, Project Vesper
 (5, 3, 4, 2), -- Evelyn, R-01 (Pacify), Pidgey, Project Vesper
@@ -523,10 +529,9 @@ INSERT INTO EXPERIMENTATION_EVENT (Scientist_Personnel_ID, Serum_ID, Pokemon_ID,
 (4, 25, 1, 1); -- Aris, D-11 (Dragon), Chimera-001, Project Apex
 
 
--- ====== GROUP 5: Resolving Circular Dependencies ======
--- Now that all core entities (Base, Personnel) exist, we can
--- link them together by updating the NULL Base_ID in PERSONNEL.
--- We'll assign personnel to the 5 bases.
+-- ============================================================
+-- GROUP 5: Circular Dependencies Fix
+-- ============================================================
 
 UPDATE PERSONNEL SET Base_ID = 1 WHERE Personnel_ID IN (1, 4, 5, 16, 17, 18, 19);
 UPDATE PERSONNEL SET Base_ID = 2 WHERE Personnel_ID IN (20, 21, 22, 31);
