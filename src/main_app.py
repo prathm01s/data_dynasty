@@ -139,7 +139,6 @@ def list_unassigned_assets(connection):
                     WHERE m.Status = 'Active'
                 )
                 ORDER BY a.Value_Estimate DESC
-                LIMIT 10
             """
             cursor.execute(sql)
             results = cursor.fetchall()
@@ -147,7 +146,7 @@ def list_unassigned_assets(connection):
             if not results:
                 print("\n[INFO] All assets are currently assigned to active missions.")
             else:
-                print("\nTop 10 High-Value Unassigned Assets:")
+                print("\n All Unassigned Assets:")
                 print(f"  {'Code':<15} | {'Type':<20} | {'Value':<15}")
                 print("  " + "-"*54)
                 for row in results:
@@ -245,7 +244,7 @@ def mission_success_rate_by_base(connection):
 
             if not results:
                 print("\n[INFO] No mission data available for bases.")
-            else:
+            else:m.Mission_ID IS NULL
                 print("\nMission Statistics by Base:")
                 print(f"  {'Base Name':<25} | {'Total':<10} | {'Completed':<10} | {'Success Rate':<15}")
                 print("  " + "-"*68)
@@ -277,7 +276,7 @@ def recruit_new_personnel(connection):
 
         # For simplicity, we'll assign them to the first available Base ID or ask for it.
         # Let's ask for Base ID.
-        base_id = input("  > Base ID (Enter for default/NULL): ").strip()
+        base_id = input("  > Base ID (Press Enter for keeping NULL): ").strip()
         base_id = int(base_id) if base_id else None
 
         with connection.cursor() as cursor:
@@ -440,24 +439,19 @@ def main_cli(connection):
             print("    C H I M E R A  DB  I N T E R F A C E")
             print("="*42)
             print(" [READ OPERATIONS]")
-            print("   1. Find Personnel by Rank")
-            print("   2. Find a Grunt's Pokémon")
-            print("   3. Show Active Missions and Assignments")
-            print("   4. Find Scientists on a Project")
-            print("   5. Calculate Pending Mission Risk")
-            print("   6. Top Performing Personnel")
-            print("   7. List Unassigned Assets")
-            print("   8. Analyze Pokemon Stats by Type")
-            print("   9. High Notoriety Trainers (Untargeted)")
-            print("   10. Mission Success Rate by Base")
+            print("   1. Show Active Missions and Assignments")
+            print("   2. Calculate Pending Mission Risk")
+            print("   3. Top Performing Personnel")
+            print("   4. List Unassigned Assets")
+            print("   5. Analyze Pokemon Stats by Type")
+            print("   6. High Notoriety Trainers (Untargeted)")
+            print("   7. Mission Success Rate by Base")
             print("\n [WRITE OPERATIONS]")
-            print("   11. (INSERT) Add New Asset")
-            print("   12. (UPDATE) Update Mission Status")
-            print("   13. (DELETE) Remove Asset from Mission")
-            print("   14. (INSERT) Recruit New Personnel")
-            print("   15. (INSERT) Assign Pokemon to Personnel")
-            print("   16. (UPDATE) Update Pokemon Stats")
-            print("   17. (DELETE) Fire Personnel")
+            print("   8. (INSERT) Recruit New Personnel")
+            print("   9. (INSERT) Assign Pokemon to Personnel")
+            print("   10. (UPDATE) Update Mission Status")
+            print("   11. (UPDATE) Update Pokemon Stats")
+            print("   12. (DELETE) Fire Personnel")
             print("\n [SYSTEM]")
             print("   q. Quit")
             print("="*42)
@@ -465,38 +459,28 @@ def main_cli(connection):
             choice = input("  > Enter choice: ").strip().lower()
 
             if choice == '1':
-                find_personnel_by_rank(connection)
-            elif choice == '2':
-                find_grunt_pokemon(connection)
-            elif choice == '3':
                 show_active_missions(connection)
-            elif choice == '4':
-                find_project_scientists(connection)
-            elif choice == '5':
+            elif choice == '2':
                 calculate_pending_mission_risk(connection)
-            elif choice == '6':
+            elif choice == '3':
                 find_top_performing_personnel(connection)
-            elif choice == '7':
+            elif choice == '4':
                 list_unassigned_assets(connection)
-            elif choice == '8':
+            elif choice == '5':
                 analyze_pokemon_stats_by_type(connection)
-            elif choice == '9':
+            elif choice == '6':
                 find_trainers_with_high_notoriety_no_mission(connection)
-            elif choice == '10':
+            elif choice == '7':
                 mission_success_rate_by_base(connection)
-            elif choice == '11':
-                add_new_asset(connection)
-            elif choice == '12':
-                update_mission_status(connection)
-            elif choice == '13':
-                remove_asset_from_mission(connection)
-            elif choice == '14':
+            elif choice == '8':
                 recruit_new_personnel(connection)
-            elif choice == '15':
+            elif choice == '9':
                 assign_pokemon_to_personnel(connection)
-            elif choice == '16':
+            elif choice == '10':
+                update_mission_status(connection)
+            elif choice == '11':
                 update_pokemon_stats(connection)
-            elif choice == '17':
+            elif choice == '12':
                 fire_personnel(connection)
             elif choice == 'q':
                 print("\n[INFO] Exiting application...")
