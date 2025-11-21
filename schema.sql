@@ -164,6 +164,19 @@ CREATE TABLE EXPERIMENTAL_LOG (
 -- ====== GROUP 4: Associative Entities (Junction Tables) ======
 -- These tables model the M:N relationships from the ERD.
 
+-- Simple M:N relationship between PERSONNEL and MISSION (Redundant but requested)
+CREATE TABLE ASSIGNED_TO (
+    Personnel_ID INT,
+    Mission_ID INT,
+    PRIMARY KEY (Personnel_ID, Mission_ID),
+    FOREIGN KEY (Personnel_ID) REFERENCES PERSONNEL(Personnel_ID)
+        ON DELETE CASCADE -- If person is removed, assignment is removed
+        ON UPDATE CASCADE,
+    FOREIGN KEY (Mission_ID) REFERENCES MISSION(Mission_ID)
+        ON DELETE CASCADE -- If mission is removed, assignment is removed
+        ON UPDATE CASCADE
+);
+
 -- M:N relationship between MISSION and PERSONNEL
 CREATE TABLE MISSION_ASSIGNMENT (
     Mission_ID INT,

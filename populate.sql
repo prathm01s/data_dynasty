@@ -347,6 +347,64 @@ INSERT INTO MISSION (Objective, `Status`, StartDate, Target_Trainer_ID) VALUES
 ('Ambush Gym Leader Flannery.', 'Active', '2025-11-13', 29),
 ('Recover lost drone DRN-SC-03.', 'Pending', '2025-11-19', NULL);
 
+-- M:N Relation: ASSIGNED_TO
+-- NOTE: This data is a SUPERSET of MISSION_ASSIGNMENT.
+-- It includes everyone with a specific role, PLUS additional oversight/backup personnel.
+
+INSERT INTO ASSIGNED_TO (Personnel_ID, Mission_ID) VALUES
+-- ==========================================================
+-- SUBSET 1: Direct Mapping (Matches MISSION_ASSIGNMENT)
+-- ==========================================================
+(16, 1), (17, 1),         -- Mission 1
+(18, 2),                  -- Mission 2
+(4, 3),                   -- Mission 3
+(16, 4),                  -- Mission 4
+(19, 5), (20, 5), (2, 5), (9, 5), (23, 5), -- Mission 5
+(21, 6), (22, 6),         -- Mission 6
+(1, 7),                   -- Mission 7
+(9, 8),                   -- Mission 8
+(10, 9),                  -- Mission 9
+(18, 10), (23, 10),       -- Mission 10
+(24, 11),                 -- Mission 11
+(15, 12),                 -- Mission 12
+(25, 13),                 -- Mission 13
+(26, 15), (27, 15),       -- Mission 15
+(28, 16),                 -- Mission 16
+(5, 17),                  -- Mission 17
+(16, 18),                 -- Mission 18
+(11, 19),                 -- Mission 19
+(7, 20),                  -- Mission 20
+(29, 21), (30, 21),       -- Mission 21
+(25, 22),                 -- Mission 22
+(16, 23), (17, 23),       -- Mission 23
+(23, 24), (24, 24),       -- Mission 24
+(27, 25), (28, 25),       -- Mission 25
+(10, 26), (25, 26),       -- Mission 26
+(5, 27),                  -- Mission 27
+(5, 28),                  -- Mission 28
+(18, 29), (26, 29),       -- Mission 29
+(22, 30),                 -- Mission 30
+
+-- ==========================================================
+-- SUBSET 2: Superset Additions (Oversight & Backup)
+-- These personnel are assigned but have no specific role in MISSION_ASSIGNMENT
+-- ==========================================================
+(4, 1),  -- Scientist Aris observing Mission 1 (Apex field test)
+(1, 1),  -- Boss Silas overseeing Mission 1
+(3, 2),  -- Boss Marcus monitoring the failed ambush on Red
+(30, 2), -- Grunt Leon providing backup for Mission 2
+(31, 4), -- Boss Silva monitoring the sabotage in Hoenn
+(1, 5),  -- Boss Silas attached to the "All Hands" mission (Strategic Command)
+(15, 8), -- Scientist Orion reviewing data from Mission 8
+(3, 10), -- Boss Marcus reviewing the failure at Dragon's Den
+(32, 12),-- Boss Poseidon authorizing WPN-SYS-B test
+(14, 17),-- Scientist Nadia analyzing speed serum field data
+(2, 19), -- Boss Serena overseeing fossil theft
+(3, 20), -- Boss Marcus overseeing Project Abyss capture
+(1, 23), -- Boss Silas doing a surprise inspection of HQ Guards
+(8, 25), -- Scientist Felix checking Castelia Stronghold defenses
+(31, 26);-- Boss Silva waiting for assets at Aether Lab
+
 -- M:N Relation: MISSION_ASSIGNMENT
 -- Demonstration: One Mission with MANY personnel (Mission 5).
 -- Demonstration: One Person with MANY missions (Grunt Kai - ID 16).
