@@ -24,7 +24,7 @@ CREATE TABLE TRAINER (
 CREATE TABLE RESEARCH_PROJECT (
     Project_ID INT AUTO_INCREMENT PRIMARY KEY,
     Title VARCHAR(255) NOT NULL UNIQUE,
-    `Status` ENUM('Planning', 'Active', 'On Hold', 'Completed', 'Cancelled') NOT NULL,
+    `Status` ENUM('Planning', 'Active', 'On Hold', 'Completed', 'Cancelled', 'Archived') NOT NULL,
     StartDate DATE,
     EndDate DATE,
     CHECK (EndDate IS NULL OR EndDate >= StartDate)
@@ -183,7 +183,7 @@ CREATE TABLE MISSION_ASSIGNMENT (
     Personnel_ID INT,
     Role VARCHAR(100),
     AssignedDate DATE,
-    `Status` ENUM('Assigned', 'Engaged', 'Battle Lost', 'Travelling') DEFAULT 'Assigned',
+    `Status` ENUM('Assigned', 'Engaged', 'Battle Lost', 'Travelling', 'Compromised') DEFAULT 'Assigned',
     PRIMARY KEY (Mission_ID, Personnel_ID),
     FOREIGN KEY (Mission_ID) REFERENCES MISSION(Mission_ID)
         ON DELETE CASCADE
@@ -270,7 +270,7 @@ CREATE TABLE EXPERIMENTATION_EVENT (
 ALTER TABLE PERSONNEL
 ADD CONSTRAINT fk_personnel_base
     FOREIGN KEY (Base_ID) REFERENCES BASE(Base_ID)
-    ON DELETE SET NULL -- If a base is destroyed, the personnel are unassigned
+    ON DELETE SET RESTRICT -- (This enforces that a Base cannot be deleted if personnel are still assigned)
     ON UPDATE CASCADE;
 
 -- --- End of schema.sql ---
