@@ -233,7 +233,7 @@ INSERT INTO GRUNT (Grunt_Personnel_ID, Squad_ID) VALUES
 
 -- 1:N Relationship (One Project has multiple Scientists)
 INSERT INTO SCIENTIST (Scientist_Personnel_ID, Specialization, Project_ID) VALUES
-(4, 'Genetic Engineering', 1),  -- Aris on Apex
+(4, 'Genetics', 1),  -- Aris on Apex
 (5, 'Biochemistry', 2),         -- Evelyn on Vesper
 (6, 'Cloning', 3),              -- Kenji on Chimera
 (7, 'Marine Biology', 4),       -- Elara on Abyss
@@ -242,7 +242,7 @@ INSERT INTO SCIENTIST (Scientist_Personnel_ID, Specialization, Project_ID) VALUE
 (10, 'Robotics', 9),            -- Inara on Aegis
 (11, 'Paleontology', 7),        -- Jonas on Genesis
 (12, 'Biochemistry', 1),        -- Lyra on Apex
-(13, 'Genetic Engineering', 1), -- Milo on Apex
+(13, 'Genetics', 1), -- Milo on Apex
 (14, 'Cloning', 3),             -- Nadia on Chimera
 (15, 'Weaponry', 8);            -- Orion on Overlord
 

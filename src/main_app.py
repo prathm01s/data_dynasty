@@ -1,5 +1,5 @@
 """
-Phase 4 & 5: Main Application Interface (main_app.py)
+Phase 4 & 1: Main Application Interface (main_app.py)
 This script provides a clean, professional command-line interface (CLI) 
 to interact with the 'chimera_db' database.
 """
@@ -394,7 +394,7 @@ def fire_personnel(connection):
         print("\n[ERROR] Invalid ID.")
 
 # ==========================================
-# PHASE 5: ADVANCED RETRIEVAL (NEW)
+# PHASE 1: ADVANCED RETRIEVAL (NEW)
 # ==========================================
 
 def get_genetics_scientists(connection):
@@ -426,7 +426,7 @@ def get_genetics_scientists(connection):
 def get_grunts_by_base(connection):
     """Projection: Display Grunts assigned to a specific Base."""
     print("\n--- 14. List Grunts by Base ---")
-    base_name = input("  > Enter Base Name (e.g., 'Chimera HQ', 'Minos Station'): ").strip()
+    base_name = input("  > Enter Base Name ('Chimera HQ', 'Minos Station', 'Outpost Delta', 'Aether Lab', 'Castelia Stronghold'): ").strip()
     try:
         with connection.cursor() as cursor:
             sql = """
@@ -454,7 +454,7 @@ def get_grunts_by_base(connection):
 def get_project_combat_rating(connection):
     """Aggregate: Compute average Combat Rating (Atk+Def) of Pokemon in a Project."""
     print("\n--- 15. Project Combat Rating Analysis ---")
-    project_title = input("  > Enter Project Title (e.g., 'Project Chimera'): ").strip()
+    project_title = input("  > Enter Project Title ('Project Chimera', 'Project Apex', 'Project Vesper', 'Project Abyss' etc.): ").strip()
     try:
         with connection.cursor() as cursor:
             sql = """
@@ -501,7 +501,7 @@ def search_mission_assets(connection):
         print(f"[ERROR] {e}")
 
 # ==========================================
-# PHASE 5: ANALYSIS REPORTS (NEW)
+# PHASE 1: ANALYSIS REPORTS (NEW)
 # ==========================================
 
 def report_mission_readiness(connection):
@@ -599,7 +599,7 @@ def report_regional_strength(connection):
         print(f"[ERROR] {e}")
 
 # ==========================================
-# PHASE 5: ADVANCED MODIFICATION (NEW)
+# PHASE 1: ADVANCED MODIFICATION (NEW)
 # ==========================================
 
 def add_new_pokemon_strict(connection):
@@ -716,7 +716,7 @@ def main_cli(connection):
             print("\n" + "="*50)
             print("    C H I M E R A  DB  -  O P E R A T I O N S")
             print("="*50)
-            print(" [PHASE 4: ORIGINAL READ]")
+            print(" [PHASE 4: READ]")
             print("   1. Show Active Missions")
             print("   2. Calculate Pending Mission Risk")
             print("   3. Top Performing Personnel")
@@ -725,14 +725,14 @@ def main_cli(connection):
             print("   6. High Notoriety Trainers (Untargeted)")
             print("   7. Mission Success Rate by Base")
             
-            print("\n [PHASE 4: ORIGINAL WRITE]")
+            print("\n [PHASE 4: WRITE]")
             print("   8. Recruit New Personnel")
             print("   9. Assign Pokemon to Personnel")
             print("   10. Update Mission Status")
             print("   11. Update Pokemon Stats")
             print("   12. Fire Personnel")
 
-            print("\n [PHASE 5: ADVANCED RETRIEVAL & REPORTS]")
+            print("\n [PHASE 1: ADVANCED RETRIEVAL & REPORTS]")
             print("   13. Selection: Scientists (Genetics)")
             print("   14. Projection: Grunts by Base")
             print("   15. Aggregate: Project Combat Rating")
@@ -741,7 +741,7 @@ def main_cli(connection):
             print("   18. Report: Experimental Subjects")
             print("   19. Report: Regional Strength")
 
-            print("\n [PHASE 5: ADVANCED MODIFICATION]")
+            print("\n [PHASE 1: ADVANCED MODIFICATION]")
             print("   20. Insert Pokemon (Strict Check)")
             print("   21. Mark Personnel MIA (Cascade)")
             print("   22. Safe Delete (Project/Base)")

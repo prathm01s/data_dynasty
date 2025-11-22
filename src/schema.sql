@@ -270,7 +270,7 @@ CREATE TABLE EXPERIMENTATION_EVENT (
 ALTER TABLE PERSONNEL
 ADD CONSTRAINT fk_personnel_base
     FOREIGN KEY (Base_ID) REFERENCES BASE(Base_ID)
-    ON DELETE SET RESTRICT -- (This enforces that a Base cannot be deleted if personnel are still assigned)
+    ON DELETE RESTRICT -- (This enforces that a Base cannot be deleted if personnel are still assigned)
     ON UPDATE CASCADE;
 
 -- --- End of schema.sql ---
